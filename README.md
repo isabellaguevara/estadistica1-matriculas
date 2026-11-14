@@ -1,22 +1,29 @@
-# Proyecto Estadística I (2026-II, Grupo B1)
+# Estadística I — MEN Matrícula
 
-Matrícula de educación superior en Colombia (MEN, datos.gov.co: `5wck-szir`).
+## Requisitos
+- R y RStudio.
+- Abrir `estadistica1.Rproj` (crear el archivo desde RStudio si aún no existe).
+- Internet para descargar el CSV y para instalar paquetes.
 
-## Cómo ejecutar
-Abrir R en la raíz del repositorio y ejecutar los scripts en orden:
+## Orden de ejecución
+1. `R/00_setup.R`
+2. `R/01_limpieza.R`
+3. Ejecutar los scripts asignados: `02` a `08`.
 
-    source("R/00_setup.R")      # paquetes, rutas, funciones
-    source("R/01_limpieza.R")   # descarga, limpieza, genera data/processed/*.rds
-    # luego 02 ... 08 (cada uno es independiente después de la limpieza)
+Los datos crudos y procesados están excluidos de Git mediante `.gitignore`.
+Cada integrante debe descargar/obtener `data/raw/matricula_es.csv` localmente si la descarga automática falla.
 
-## Responsables
-| Script | Integrante |
-|---|---|
-| 00_setup, 01_limpieza, 02_descriptiva_tiempo, 07_lgn | 1 |
-| 03_descriptiva_grupos, 04_probabilidad, informe final | 2 |
-| 05_descriptiva_numerica, 06_bayes, 08_tcl | 3 |
+## Importante
+- Las filas son grupos agregados, no personas individuales.
+- Para probabilidades y frecuencias de estudiantes, ponderar por `matriculados`.
+- Para LGN y TCL, la unidad de análisis indicada en la guía son las filas y la variable es `matriculados` por grupo.
+- No sumar semestres como si fueran personas distintas.
+- Completar y verificar los catálogos `catalogos/id_*.csv` con el diccionario oficial MEN/SNIES antes de interpretar códigos.
+- Revisar etiquetas de `sector`, `metodologia`, `area` y `genero` antes de ejecutar 04 y 06.
 
-## Reglas
-- Trabajar en ramas y abrir pull requests; revisión cruzada.
-- No subir datos (están en .gitignore).
-- Probabilidades y frecuencias ponderadas por `matriculados`.
+## Carpetas
+- `R/`: scripts.
+- `data/raw/`: CSV original (no versionado).
+- `data/processed/`: RDS limpios (no versionados).
+- `catalogos/`: diccionarios compartidos.
+- `output/`: tablas y figuras generadas.
