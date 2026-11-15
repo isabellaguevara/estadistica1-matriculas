@@ -201,19 +201,15 @@ totales <- datos |>
   dplyr::mutate(razon_prev = total / dplyr::lag(total))
 guardar_tabla(totales, "totales_periodo")
 
-if (is.null(PERIODO_CORTE)) {
-  ult <- dplyr::slice_tail(totales, n = 1)
-  if (nrow(totales) >= 2 && !is.na(ult$razon_prev) && ult$razon_prev < 0.9) {
-    ult <- dplyr::slice(totales, nrow(totales) - 1)
-    message("El último periodo cae más de 10%; se seleccionó el anterior como candidato. Verifiquen que esté completo.")
-  }
-} else {
-  ult <- dplyr::filter(totales, ano == PERIODO_CORTE[["ano"]],
-                       semestre == PERIODO_CORTE[["semestre"]])
-}
-if (nrow(ult) != 1) stop("No se pudo determinar un único periodo de corte. Revise PERIODO_CORTE.")
-message("Corte: ", ult$ano, "-", ult$semestre, " | Matrícula: ", scales::comma(ult$total))
-corte <- dplyr::semi_join(datos, ult, by = c("ano", "semestre"))
+ANO_CORTE <- 2020   # año completo: el SENA reporta S2 y las demás IES S1
+corte <- dplyr::filter(datos, ano == ANO_CORTE)
+message("Corte: año ", ANO_CORTE, " | Matrícula (S1 + S2): ",
+        scales::comma(sum(corte$matriculados)))
+
+ANO_MIN <- 2017   # 2015-2016 no son comparables con 2017-2020 (en revisión)
+saveRDS(datos, here::here("data", "processed", "matricula_limpia.rds"))
+saveRDS(dplyr::filter(datos, ano >= ANO_MIN),
+        here::here("data", "processed", "matricula_analisis.rds"))
 
 saveRDS(datos, here::here("data", "processed", "matricula_limpia.rds"))
 saveRDS(corte, here::here("data", "processed", "matricula_corte.rds"))

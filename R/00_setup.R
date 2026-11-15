@@ -73,8 +73,11 @@ tabla_freq <- function(df, var, peso = matriculados) {
     )
 }
 
-cargar_datos <- function() {
+cargar_datos_completo <- function() {
   readRDS(here::here("data", "processed", "matricula_limpia.rds"))
+}
+cargar_datos <- function() {   # base de análisis (la usan 03 a 08)
+  readRDS(here::here("data", "processed", "matricula_analisis.rds"))
 }
 cargar_corte <- function() {
   readRDS(here::here("data", "processed", "matricula_corte.rds"))
