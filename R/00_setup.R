@@ -1,5 +1,5 @@
 # 00_setup.R | Responsable: Integrante 1
-# Paquetes, rutas, semilla y funciones compartidas.
+# Paquetes, rutas, semilla, parámetros y funciones compartidas.
 
 # Abrir siempre estadistica1.Rproj desde RStudio.
 # here() reconoce la raíz del proyecto (.Rproj, .git o .here).
@@ -31,6 +31,17 @@ suppressPackageStartupMessages(
 options(scipen = 999, dplyr.summarise.inform = FALSE)
 set.seed(2026)
 
+# ---- Parámetros compartidos por los tres integrantes ----
+ANO_MIN   <- 2017   # primer año del análisis (2015-2016 se excluyen)
+ANO_CORTE <- 2020   # año completo para probabilidades, Bayes y frecuencias
+
+# Totales oficiales SNIES-MEN (2022), matrícula en IES:
+# https://www.mineducacion.gov.co/1780/articles-415125_recurso_1.pdf
+oficial_snies <- tibble::tibble(
+  ano = 2015:2020,
+  oficial_snies = c(2293550, 2394434, 2446314, 2440367, 2396250, 2355603)
+)
+
 # Crear carpetas necesarias.
 carpetas <- c(
   "data/raw", "data/processed",
@@ -61,7 +72,7 @@ guardar_tabla <- function(df, nombre) {
   invisible(df)
 }
 
-# Frecuencias ponderadas: cada fila aporta matriculados estudiantes.
+# Frecuencias ponderadas: cada fila aporta 'matriculados' estudiantes.
 tabla_freq <- function(df, var, peso = matriculados) {
   df |>
     dplyr::count({{ var }}, wt = {{ peso }}, name = "f_abs") |>
@@ -73,13 +84,13 @@ tabla_freq <- function(df, var, peso = matriculados) {
     )
 }
 
-cargar_datos_completo <- function() {
+cargar_datos_completo <- function() {   # 2015-2020 (solo para diagnóstico)
   readRDS(here::here("data", "processed", "matricula_limpia.rds"))
 }
-cargar_datos <- function() {   # base de análisis (la usan 03 a 08)
+cargar_datos <- function() {            # base de análisis 2017-2020 (03 a 08)
   readRDS(here::here("data", "processed", "matricula_analisis.rds"))
 }
-cargar_corte <- function() {
+cargar_corte <- function() {            # corte del año ANO_CORTE
   readRDS(here::here("data", "processed", "matricula_corte.rds"))
 }
 

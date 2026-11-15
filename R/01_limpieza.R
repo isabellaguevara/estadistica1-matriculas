@@ -2,7 +2,6 @@
 # Descarga/lectura, normalización, faltantes, validación, catálogos y corte.
 source(here::here("R", "00_setup.R"))
 
-PERIODO_CORTE <- NULL # Ejemplo: c(ano = 2024, semestre = 2)
 TEXTOS_FALTANTES <- c(
   "", "NA", "N/A", "NULL", "SIN INFORMACION", "SIN DATO",
   "SIN DATOS", "NO APLICA", "NO REPORTADO", "NO DISPONIBLE"
@@ -39,7 +38,7 @@ mapa <- c(
   id_sector = "^id_sector$",
   id_caracter = "^id_caracter$",
   depto_ies = "^departamento_de_domicilio",
-  mpio_ies = "^municipio_de_domicilio",
+  mpio_ies = "^municipio_de.*domicilio",
   snies = "^codigo_snies",
   programa = "^programa_academico",
   id_nivel = "^id_nivel$",
@@ -88,6 +87,24 @@ datos <- datos |>
     dplyr::everything(),
     ~ dplyr::if_else(es_placeholder(.x), NA_character_, stringr::str_squish(.x))
   ))
+
+# Unificar mayúsculas en variables de texto: hay variantes como "SECCIONAL" y
+# "Seccional", o nombres de IES escritos de dos formas para un mismo código.
+cols_texto <- intersect(
+  c("ies", "principal_seccional", "depto_ies", "mpio_ies",
+    "programa", "nbc", "depto_prog", "mpio_prog"),
+  names(datos)
+)
+distintos_antes <- unname(purrr::map_int(datos[cols_texto], dplyr::n_distinct))
+datos <- datos |>
+  dplyr::mutate(dplyr::across(dplyr::all_of(cols_texto), stringr::str_to_upper))
+distintos_despues <- unname(purrr::map_int(datos[cols_texto], dplyr::n_distinct))
+guardar_tabla(
+  tibble::tibble(variable = cols_texto,
+                 distintos_antes = distintos_antes,
+                 distintos_despues = distintos_despues),
+  "normalizacion_texto"
+)
 
 matri_txt <- datos$matriculados
 datos <- datos |>
@@ -201,16 +218,45 @@ totales <- datos |>
   dplyr::mutate(razon_prev = total / dplyr::lag(total))
 guardar_tabla(totales, "totales_periodo")
 
-ANO_CORTE <- 2020   # año completo: el SENA reporta S2 y las demás IES S1
+# ---- Corte y base de análisis (ANO_MIN y ANO_CORTE vienen de 00_setup.R) ----
 corte <- dplyr::filter(datos, ano == ANO_CORTE)
+analisis <- dplyr::filter(datos, ano >= ANO_MIN)
 message("Corte: año ", ANO_CORTE, " | Matrícula (S1 + S2): ",
         scales::comma(sum(corte$matriculados)))
 
-ANO_MIN <- 2017   # 2015-2016 no son comparables con 2017-2020 (en revisión)
-saveRDS(datos, here::here("data", "processed", "matricula_limpia.rds"))
-saveRDS(dplyr::filter(datos, ano >= ANO_MIN),
-        here::here("data", "processed", "matricula_analisis.rds"))
+# Validación contra cifras oficiales (justifica la exclusión de 2015-2016)
+validacion <- datos |>
+  dplyr::group_by(ano) |>
+  dplyr::summarise(total_base = sum(matriculados), .groups = "drop") |>
+  dplyr::left_join(oficial_snies, by = "ano") |>
+  dplyr::mutate(diferencia = total_base - oficial_snies)
+guardar_tabla(validacion, "validacion_oficial")
+print(as.data.frame(validacion))
+if (any(validacion$diferencia[validacion$ano >= ANO_MIN] != 0)) {
+  warning("Los totales de la base de análisis no coinciden con el SNIES.")
+}
 
-saveRDS(datos, here::here("data", "processed", "matricula_limpia.rds"))
-saveRDS(corte, here::here("data", "processed", "matricula_corte.rds"))
+# Estructura y faltantes de la base de análisis (la que usa el informe)
+estructura_analisis <- tibble::tibble(
+  n_filas = nrow(analisis),
+  matriculados = sum(analisis$matriculados),
+  n_ies = dplyr::n_distinct(analisis$cod_ies),
+  n_programas = dplyr::n_distinct(analisis$snies),
+  n_duplicados_clave = sum(duplicated(analisis[clave]))
+)
+guardar_tabla(estructura_analisis, "estructura_analisis")
+
+faltantes_analisis <- tibble::tibble(
+  variable = names(analisis),
+  n_na = purrr::map_int(analisis, ~ sum(is.na(.x)))
+) |>
+  dplyr::mutate(pct_na = n_na / nrow(analisis)) |>
+  dplyr::arrange(dplyr::desc(n_na))
+guardar_tabla(faltantes_analisis, "faltantes_analisis")
+
+# 2015-2016 se excluyen (registros repetidos; ver validacion_oficial y
+# diagnostico_2015_2016 generado por 01b_diagnostico_2015_2016.R)
+saveRDS(datos,    here::here("data", "processed", "matricula_limpia.rds"))
+saveRDS(analisis, here::here("data", "processed", "matricula_analisis.rds"))
+saveRDS(corte,    here::here("data", "processed", "matricula_corte.rds"))
 message("Limpieza finalizada.")
