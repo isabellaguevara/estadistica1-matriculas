@@ -153,12 +153,12 @@ if (file.exists(ruta_geo) && requireNamespace("sf", quietly = TRUE)) {
   mapa <- sf::st_read(ruta_geo, quiet = TRUE)
   print(names(mapa))
   stopifnot(COL_NOMBRE_GEO %in% names(mapa))
-  mapa <- dplyr::mutate(mapa, clave = limpiar_nombres(.data[[COL_NOMBRE_GEO]]))
-  geo_m <- dplyr::mutate(geo, clave = limpiar_nombres(depto_prog))
+  mapa <- dplyr::mutate(mapa, clave = stringr::str_remove_all(limpiar_nombres(.data[[COL_NOMBRE_GEO]]), "_"))
+  geo_m <- dplyr::mutate(geo, clave = stringr::str_remove_all(limpiar_nombres(depto_prog), "_"))
   
   # Correcciones manuales si algún nombre no cruza (clave_matricula = clave_mapa):
   correcciones <- c(
-    # "archipielago_de_san_andres_providencia_y_santa_catalina" = "san_andres_y_providencia"
+    "archipielagodesanandresprovidenciaysantacatalina" = "sanandresyprovidencia"
   )
   geo_m <- dplyr::mutate(geo_m, clave = dplyr::coalesce(unname(correcciones[clave]), clave))
   
@@ -185,4 +185,4 @@ if (file.exists(ruta_geo) && requireNamespace("sf", quietly = TRUE)) {
   message("Mapa omitido: falta ", ruta_geo, " o el paquete 'sf' (install.packages('sf')).")
 }
 
-message("05_descriptiva_numerica.R finalizado.")
+message("05_descriptiva_numerica.R finalizadoo.")
