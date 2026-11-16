@@ -64,7 +64,7 @@ p_acum <- ggplot(trayectoria, aes(n, media_acumulada)) +
   geom_hline(yintercept = mu, linetype = 2, colour = "red") +
   scale_x_log10(labels = label_number(big.mark = ".", decimal.mark = ",")) +
   labs(title = "Convergencia de la media acumulada hacia la media poblacional",
-       subtitle = paste0("Línea punteada: µ = ", round(mu, 2), " matriculados por grupo"),
+       subtitle = paste0("Línea punteada: µ = ", format(round(mu, 2), decimal.mark = ","), " matriculados por grupo"),
        x = "Número de extracciones n (escala logarítmica)",
        y = "Media acumulada de matriculados por grupo",
        caption = "Fuente: MEN (SNIES), 2017-2020") +
