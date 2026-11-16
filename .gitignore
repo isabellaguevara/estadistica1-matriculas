@@ -2,3 +2,10 @@
 .Rhistory
 .RData
 .Ruserdata
+
+# Datos locales
+data/raw/
+data/processed/
+
+# Resultados generados
+output/
