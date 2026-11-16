@@ -9,8 +9,8 @@ Análisis estadístico de los datos de matrícula en educación superior publica
 | Rol | Integrante | Enfoque |
 | --- | --- | --- |
 | Integrante 1 | Isabella | Datos y tiempo |
-| Integrante 2 | [nombre] | Grupos y probabilidad |
-| Integrante 3 | [nombre] | Simulación y Bayes |
+| Integrante 2 | Juan Jose Jairo | Grupos y probabilidad |
+| Integrante 3 | Andres Felipe Prada | Simulación y Bayes |
 
 ## Datos
 
