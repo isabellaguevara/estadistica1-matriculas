@@ -20,13 +20,12 @@ print(as.data.frame(corte |> dplyr::group_by(id_genero, genero) |>
                       dplyr::summarise(matriculados = sum(matriculados), .groups = "drop")))
 
 # ---- PASO 2: definir los eventos (ajustar patrones según lo impreso) ------
-AREA_PATRON   <- "INGENIER"   # área de interés: Ingeniería, arquitectura, urbanismo y afines
-GENERO_PATRON <- "FEMEN"      # mujeres
+AREA_ID_INTERES <- 8L   # Ingeniería, arquitectura, urbanismo y afines (verificado con nbc)
+GENERO_PATRON   <- "FEMEN"
 
 corte <- corte |>
   dplyr::mutate(
-    A = stringr::str_detect(tidyr::replace_na(area, ""),
-                            stringr::regex(AREA_PATRON, ignore_case = TRUE)),
+    A = !is.na(id_area) & id_area == AREA_ID_INTERES,
     B = stringr::str_detect(tidyr::replace_na(genero, ""),
                             stringr::regex(GENERO_PATRON, ignore_case = TRUE))
   )

@@ -185,4 +185,4 @@ if (file.exists(ruta_geo) && requireNamespace("sf", quietly = TRUE)) {
   message("Mapa omitido: falta ", ruta_geo, " o el paquete 'sf' (install.packages('sf')).")
 }
 
-message("05_descriptiva_numerica.R finalizado.")
+message("05_descriptiva_numerica.R finalizadoo.")
