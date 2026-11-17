@@ -1,0 +1,7 @@
+evento,descripcion,probabilidad
+P(A),Matriculado en Ingeniería y afines,0.2639107693444099
+P(B),Matriculado de género femenino,0.5297323020899531
+P(A y B),Mujer matriculada en Ingeniería y afines,0.08295964982214744
+P(B|A),Mujer dado que estudia Ingeniería y afines,0.31434734561318
+P(A complemento),Matriculado en otras áreas o sin dato de área,0.7360892306555902
+P(B|A complemento),Mujer dado que no pertenece a Ingeniería y afines,0.6069544746224481
